@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>520领取心仪对象神器</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f0f4fa 0%, #dce5ef 100%);
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* 主卡片 - 问卷界面 */
+        .card {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255,255,255,0.97);
+            border-radius: 2.5rem;
+            box-shadow: 0 25px 45px -12px rgba(0,0,0,0.35), 0 4px 12px rgba(0,0,0,0.08);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .content {
+            padding: 2rem 2rem 2rem 2rem;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0 0 0.25rem 0;
+            color: #0c2b3b;
+            letter-spacing: -0.3px;
+        }
+
+        .sub {
+            color: #4a6272;
+            border-left: 4px solid #3b82f6;
+            padding-left: 14px;
+            margin-bottom: 28px;
+            font-size: 0.9rem;
+        }
+
+        .question-block {
+            background: #ffffff;
+            border-radius: 1.8rem;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 1.8rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02), 0 6px 14px -8px rgba(0,0,0,0.12);
+            border: 1px solid #eef2f8;
+        }
+
+        .q-title {
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #0f2b3d;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .q-badge {
+            background: #3b82f6;
+            color: white;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            padding: 2px 12px;
+        }
+
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .option-btn {
+            background: #f1f5f9;
+            border: 1.5px solid #e2e8f0;
+            padding: 0.6rem 1.6rem;
+            border-radius: 60px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #1e293b;
+            font-size: 0.95rem;
+        }
+
+        .option-btn.active {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+            box-shadow: 0 6px 12px -6px rgba(59,130,246,0.4);
+        }
+
+        .range-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.7rem;
+            margin-top: 8px;
+        }
+        .range-chip {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            padding: 0.5rem 1rem;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: 0.1s;
+        }
+        .range-chip.active {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+        }
+        .range-note {
+            font-size: 0.7rem;
+            color: #5f7f9a;
+            margin-top: 8px;
+        }
+
+        .dynamic-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 0.75rem;
+        }
+
+        .btn-confirm {
+            background: #1e293b;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 60px;
+            width: 100%;
+            cursor: pointer;
+            margin-top: 28px;
+            transition: 0.2s;
+            box-shadow: 0 6px 12px -8px rgba(0,0,0,0.2);
+        }
+
+        .btn-confirm:hover {
+            background: #0f172a;
+            transform: scale(0.98);
+        }
+
+        .note {
+            font-size: 0.75rem;
+            color: #6c86a3;
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        @media (max-width: 550px) {
+            .content { padding: 1.5rem; }
+            .option-btn { padding: 0.5rem 1rem; font-size: 0.85rem; }
+        }
+
+        /* 全屏图片展示界面 (新界面全屏) */
+        .fullscreen-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000ee;
+            background: radial-gradient(circle at center, #1a2a3a, #03070f);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0.2s, opacity 0.2s ease;
+            backdrop-filter: blur(8px);
+        }
+
+        .fullscreen-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .fullscreen-img-container {
+            max-width: 90vw;
+            max-height: 75vh;
+            text-align: center;
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .fullscreen-img {
+            max-width: 100%;
+            max-height: 70vh;
+            object-fit: contain;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            border: 2px solid rgba(255,255,240,0.3);
+            background: #0f212e;
+        }
+
+        /* 弹窗卡片 (同意/不同意) 置于全屏图片下方 */
+        .fullscreen-decision-card {
+            background: rgba(20, 30, 45, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 60px;
+            padding: 1.4rem 2rem;
+            width: 90%;
+            max-width: 550px;
+            text-align: center;
+            box-shadow: 0 20px 35px -10px black;
+            border: 1px solid rgba(255,255,200,0.25);
+            transition: all 0.2s;
+        }
+
+        .fullscreen-question {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #f5f9ff;
+        }
+
+        .fullscreen-button-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            transition: all 0.15s ease;
+            flex-wrap: wrap;
+        }
+
+        .fs-agree, .fs-disagree {
+            border: none;
+            padding: 12px 32px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.5, 1.1);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        .fs-agree {
+            background: #22c55e;
+            color: white;
+        }
+        .fs-disagree {
+            background: #ef4444;
+            color: white;
+        }
+
+        .hidden-btn {
+            display: none;
+        }
+
+        .fullsize-agree-fs {
+            width: 90%;
+            font-size: 2.4rem;
+            padding: 20px 0;
+        }
+
+        .close-fullscreen-hint {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            background: rgba(0,0,0,0.5);
+            border-radius: 40px;
+            padding: 5px 14px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-family: monospace;
+            z-index: 2100;
+        }
+    </style>
+</head>
+<body>
+<!-- 问卷界面 -->
+<div id="questionnaireCard" class="card">
+    <div class="content">
+        <h1>✨ 领取与你共度5.20的心仪对象 ✨</h1>
+        <div class="sub">每个选择组合都将为你提供独一无二的伴侣</div>
+
+        <!-- 问题1：两个选项 (方案X / 方案Y) -->
+        <div class="question-block">
+            <div class="q-title"><span class="q-badge">问题 A</span> 请选择心仪对象的性别 </div>
+            <div class="options" id="q1Options">
+                <div data-val="planX" class="option-btn"> 男 </div>
+                <div data-val="planY" class="option-btn"> 女 </div>
+            </div>
+        </div>
+
+        <!-- 问题2：数字区间 (0~8)(9~18)(18~25)(26~40)(40~正无穷) -->
+        <div class="question-block">
+            <div class="q-title"><span class="q-badge">问题 B</span> 请选择你对象心仪年龄 </div>
+            <div class="range-group" id="rangeGroup">
+                <div data-range="0-8" class="range-chip">0~8岁</div>
+                <div data-range="9-18" class="range-chip">9~18岁</div>
+                <div data-range="18-25" class="range-chip">18~25岁</div>
+                <div data-range="26-40" class="range-chip">26~40岁</div>
+                <div data-range="40-inf" class="range-chip">40岁以上</div>
+            </div>
+            <div class="range-note">※ 选择一个年龄段区间</div>
+        </div>
+
+        <!-- 问题3：动态取决于问题1的选项 (两种方案，每个方案3个选项) -->
+        <div class="question-block">
+            <div class="q-title"><span class="q-badge">问题 C</span> 动态选项 (依赖问题A)</div>
+            <div id="dynamicOptionsContainer" class="dynamic-options">
+                <div class="range-note">请先选择第一个问题中的「男」或「女」</div>
+            </div>
+        </div>
+
+        <button id="confirmBtn" class="btn-confirm">🔮 确认 · 生成适合你的心仪对象 🔮</button>
+        <div class="note">⚡ 点击确认后,将展示与你匹配的心仪对象共度5.20</div>
+    </div>
+</div>
+
+<!-- 全屏图片展示专用界面 (另开新界面效果) -->
+<div id="fullscreenModal" class="fullscreen-overlay">
+    <div class="close-fullscreen-hint" id="closeFsHint">✖ 关闭</div>
+    <div class="fullscreen-img-container" id="fsImgContainer">
+        <img id="fsImage" class="fullscreen-img" alt="全屏画卷">
+    </div>
+    <div class="fullscreen-decision-card" id="decisionCard">
+        <div class="fullscreen-question">💫 你愿意与这位心仪对象共度余生吗？ </div>
+        <div class="fullscreen-button-row" id="fsButtonRow">
+            <button id="fsAgreeBtn" class="fs-agree">愿意 🌟</button>
+            <button id="fsDisagreeBtn" class="fs-disagree"> 不愿意 ⚡</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- 问卷状态 ----------
+    let selectedQ1 = null;      // 'planX' 或 'planY'
+    let selectedRange = null;   // 区间字符串如 '0-8'
+    let selectedQ3 = null;      // 第三个问题选中的完整文本 (用于匹配图片映射)
+
+    // ----------------------------- 图片地址映射表 ---------------------------------
+    function getImageUrlBySelections(plan, range, optionText) {
+        const imageMap = {
+            // =============== planX 组合 ===============
+            "planX_0-8_霸道总裁": "520/z1.JPEG",
+            "planX_0-8_乖巧奶狗": "520/n1.JPEG",
+            "planX_0-8_南梁": "520/nl1.jpeg",
+
+            "planX_9-18_霸道总裁": "520/z2.JPEG",
+            "planX_9-18_乖巧奶狗": "520/n2.JPEG",
+            "planX_9-18_南梁": "520/nl2.jpeg",
+            
+            "planX_18-25_霸道总裁": "520/z3.JPEG",
+            "planX_18-25_乖巧奶狗": "520/n3.JPEG",
+            "planX_18-25_南梁": "520/nl3.JPEG",
+            
+            "planX_26-40_霸道总裁": "520/z4.JPEG",
+            "planX_26-40_乖巧奶狗": "520/n4.JPEG",
+            "planX_26-40_南梁": "520/nl4.JPEG",
+            
+            "planX_40-inf_霸道总裁": "520/z5.JPEG",
+            "planX_40-inf_乖巧奶狗": "520/n5.jpeg",
+            "planX_40-inf_南梁": "520/nl5.JPEG",
+            
+            // =============== planY 组合 ===============
+            "planY_0-8_萝莉": "520/l1.jpeg",
+            "planY_0-8_御姐": "520/yj1.JPEG",
+            "planY_0-8_拉拉": "520/ll1.png",
+            
+            "planY_9-18_萝莉": "520/l2.jpeg",
+            "planY_9-18_御姐": "520/yj2.JPEG",
+            "planY_9-18_拉拉": "520/ll2.png",
+            
+            "planY_18-25_萝莉": "520/l3.JPEG",
+            "planY_18-25_御姐": "520/yj3.JPEG",
+            "planY_18-25_拉拉": "520/ll3.png",
+            
+            "planY_26-40_萝莉": "520/l4.JPEG",
+            "planY_26-40_御姐": "520/yj4.JPEG",
+            "planY_26-40_拉拉": "520/ll4.png",
+            
+            "planY_40-inf_萝莉": "520/l5.JPEG",
+            "planY_40-inf_御姐": "520/yj5.JPEG",
+            "planY_40-inf_拉拉": "520/ll5.png"
+        };
+        
+        const key = `${plan}_${range}_${optionText}`;
+        if (imageMap[key]) {
+            return imageMap[key];
+        }
+        console.warn(`未找到组合图片映射: ${key}, 使用默认降级图`);
+        const fallbackHash = (plan + range + optionText).length % 360;
+        return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'%3E%3Crect width='800' height='600' fill='hsl(${fallbackHash},70%25,55%25)'/%3E%3Ctext x='400' y='300' font-size='28' fill='white' text-anchor='middle'%3E未配置图片%3C/text%3E%3Ctext x='400' y='350' font-size='20' fill='#eee' text-anchor='middle'%3E组合: ${plan} / ${range}%3C/text%3E%3C/svg%3E`;
+    }
+    
+    // 根据不同方案映射三个选项
+    const optionsMap = {
+        planX: ["霸道总裁", "乖巧奶狗", "南梁"],
+        planY: ["萝莉", "御姐", "拉拉"]
+    };
+
+    // DOM 元素
+    const q1OptionsDiv = document.getElementById('q1Options');
+    const rangeGroupDiv = document.getElementById('rangeGroup');
+    const dynamicContainer = document.getElementById('dynamicOptionsContainer');
+    const confirmBtn = document.getElementById('confirmBtn');
+    const questionnaireCard = document.getElementById('questionnaireCard');
+
+    // 全屏相关元素
+    const fullscreenOverlay = document.getElementById('fullscreenModal');
+    const fsImage = document.getElementById('fsImage');
+    const fsAgreeBtn = document.getElementById('fsAgreeBtn');
+    const fsDisagreeBtn = document.getElementById('fsDisagreeBtn');
+    const fsButtonRow = document.getElementById('fsButtonRow');
+    const decisionCard = document.getElementById('decisionCard');
+
+    // 全屏内部逻辑专用变量
+    let disagreeClickCount = 0;
+    let isFullscreenActive = false;
+    
+    // ========== 纯JS礼花特效（不依赖外部库） + 音乐播放 ==========
+    // 播放音乐的函数
+    function playCelebrationMusic() {
+        // 音乐素材位置：请将您的音乐文件放在项目目录下，并修改下面的路径
+        // 例如：'./assets/celebration.mp3' 或 'https://你的网址/music.mp3'
+        const musicUrl = 'gbqq/gbqq.aac';  // 👈 在这里修改您的音乐路径
+        
+        if (window.currentAudio && !window.currentAudio.paused) {
+            window.currentAudio.pause();
+            window.currentAudio.currentTime = 0;
+        }
+        
+        const audio = new Audio(musicUrl);
+        audio.loop = false;
+        audio.volume = 0.7;
+        audio.play().catch(e => console.log('音乐播放失败，请检查路径:', e));
+        window.currentAudio = audio;
+    }
+
+    // 纯JS礼花特效（不依赖任何外部库）
+    function fireConfetti() {
+        // 创建画布元素
+        const canvas = document.createElement('canvas');
+        canvas.style.position = 'fixed';
+        canvas.style.top = '0';
+        canvas.style.left = '0';
+        canvas.style.width = '100%';
+        canvas.style.height = '100%';
+        canvas.style.pointerEvents = 'none';
+        canvas.style.zIndex = '9999';
+        document.body.appendChild(canvas);
+        
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        let particles = [];
+        const colors = ['#ff595e', '#ffca3a', '#8ac926', '#1982c4', '#6a4c93', '#ff6b6b', '#f72585', '#4cc9f0', '#ffd166', '#06d6a0', '#118ab2', '#ef476f'];
+        
+        // 创建大量粒子 - 从屏幕各个位置爆发
+        const particleCount = 350;
+        
+        for (let i = 0; i < particleCount; i++) {
+            // 随机决定粒子起始位置（偏向左右两侧和顶部）
+            let startX, startY;
+            const area = Math.random();
+            if (area < 0.4) {
+                // 左侧区域
+                startX = Math.random() * canvas.width * 0.3;
+                startY = Math.random() * canvas.height;
+            } else if (area < 0.8) {
+                // 右侧区域
+                startX = canvas.width - Math.random() * canvas.width * 0.3;
+                startY = Math.random() * canvas.height;
+            } else {
+                // 顶部区域
+                startX = Math.random() * canvas.width;
+                startY = Math.random() * canvas.height * 0.3;
+            }
+            
+            particles.push({
+                x: startX,
+                y: startY,
+                size: Math.random() * 8 + 3,
+                speedX: (Math.random() - 0.5) * 12,
+                speedY: Math.random() * 10 + 3,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                gravity: 0.2,
+                opacity: 1,
+                rotation: Math.random() * Math.PI * 2,
+                rotationSpeed: (Math.random() - 0.5) * 0.2
+            });
+        }
+        
+        // 额外添加从中央爆发的粒子
+        for (let i = 0; i < 150; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = Math.random() * 12 + 5;
+            particles.push({
+                x: canvas.width / 2,
+                y: canvas.height / 2,
+                size: Math.random() * 6 + 2,
+                speedX: Math.cos(angle) * speed,
+                speedY: Math.sin(angle) * speed,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                gravity: 0.15,
+                opacity: 1,
+                rotation: Math.random() * Math.PI * 2,
+                rotationSpeed: (Math.random() - 0.5) * 0.2
+            });
+        }
+        
+        let animationId = null;
+        
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            let allDead = true;
+            
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                if (p.opacity <= 0) continue;
+                allDead = false;
+                
+                p.x += p.speedX;
+                p.y += p.speedY;
+                p.speedY += p.gravity;
+                p.opacity -= 0.008;
+                p.rotation += p.rotationSpeed;
+                
+                ctx.save();
+                ctx.globalAlpha = p.opacity;
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.rotation);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                ctx.restore();
+            }
+            
+            particles = particles.filter(p => p.opacity > 0);
+            
+            if (particles.length > 0) {
+                animationId = requestAnimationFrame(animate);
+            } else {
+                if (animationId) cancelAnimationFrame(animationId);
+                if (document.body.contains(canvas)) {
+                    document.body.removeChild(canvas);
+                }
+            }
+        }
+        
+        animate();
+        
+        // 5秒后强制移除画布（防止内存泄漏）
+        setTimeout(() => {
+            if (animationId) cancelAnimationFrame(animationId);
+            if (document.body.contains(canvas)) {
+                document.body.removeChild(canvas);
+            }
+        }, 5000);
+    }
+
+    // 同时触发礼花和音乐
+    function celebrate() {
+        fireConfetti();
+        setTimeout(() => {
+            playCelebrationMusic();
+        }, 200);
+    }
+    
+    // 重置全屏按钮的视觉及计数
+    function resetFullscreenDecisionUI() {
+        disagreeClickCount = 0;
+        fsAgreeBtn.classList.remove('fullsize-agree-fs');
+        fsDisagreeBtn.classList.remove('hidden-btn');
+        fsAgreeBtn.style.transform = '';
+        fsDisagreeBtn.style.transform = '';
+        fsAgreeBtn.style.width = '';
+        fsAgreeBtn.style.fontSize = '';
+        fsDisagreeBtn.style.fontSize = '';
+        fsAgreeBtn.style.display = 'inline-block';
+        fsDisagreeBtn.style.display = 'inline-block';
+        fsButtonRow.style.justifyContent = 'center';
+        fsButtonRow.style.gap = '2rem';
+        fsAgreeBtn.removeAttribute('style');
+        fsDisagreeBtn.removeAttribute('style');
+        if (decisionCard) {
+            decisionCard.style.display = '';
+        }
+    }
+
+    // 全屏展示图片 + 弹出同意/不同意逻辑，并且隐藏问卷界面
+    function showFullscreenImageAndHideQuestion() {
+        if (!selectedQ1 || !selectedRange || !selectedQ3) {
+            console.warn("数据异常，但已校验，不应该发生");
+            return;
+        }
+        const imgUrl = getImageUrlBySelections(selectedQ1, selectedRange, selectedQ3);
+        fsImage.src = imgUrl;
+        resetFullscreenDecisionUI();
+        questionnaireCard.style.display = 'none';
+        fullscreenOverlay.classList.add('active');
+        isFullscreenActive = true;
+        // 触发礼花和音乐
+        celebrate();
+    }
+
+    // 关闭全屏界面
+    function closeFullscreen() {
+        fullscreenOverlay.classList.remove('active');
+        isFullscreenActive = false;
+        disagreeClickCount = 0;
+    }
+
+    // 全屏内【不同意】按钮逻辑
+    function handleFsDisagree() {
+        if (!isFullscreenActive) return;
+        disagreeClickCount++;
+        const agree = fsAgreeBtn;
+        const disagree = fsDisagreeBtn;
+
+        if (disagreeClickCount === 1) {
+            agree.style.transform = 'scale(1.25)';
+            disagree.style.transform = 'scale(0.8)';
+            agree.style.fontSize = '1.4rem';
+            disagree.style.fontSize = '1rem';
+            agree.style.padding = '12px 36px';
+            disagree.style.padding = '8px 24px';
+        } else if (disagreeClickCount === 2) {
+            agree.style.transform = 'scale(1.6)';
+            disagree.style.transform = 'scale(0.6)';
+            agree.style.fontSize = '1.8rem';
+            disagree.style.fontSize = '0.85rem';
+        } else if (disagreeClickCount === 3) {
+            agree.style.transform = 'scale(2.1)';
+            disagree.style.transform = 'scale(0.4)';
+            agree.style.fontSize = '2.3rem';
+            disagree.style.fontSize = '0.7rem';
+            agree.style.padding = '14px 48px';
+            disagree.style.padding = '4px 16px';
+        } else if (disagreeClickCount >= 4) {
+            disagree.classList.add('hidden-btn');
+            disagree.style.display = 'none';
+            agree.classList.add('fullsize-agree-fs');
+            agree.style.width = '90%';
+            agree.style.fontSize = '2.6rem';
+            agree.style.padding = '24px 0';
+            agree.style.transform = 'scale(1)';
+            fsButtonRow.style.justifyContent = 'center';
+            fsButtonRow.style.gap = '0';
+        }
+    }
+
+    // 全屏内【同意】按钮逻辑
+    function handleFsAgree() {
+        if (!isFullscreenActive) return;
+        if (decisionCard) {
+            decisionCard.style.display = 'none';
+        }
+    }
+
+    // 渲染第三个问题的动态选项
+    function renderQ3Options() {
+        if (!selectedQ1) {
+            dynamicContainer.innerHTML = `<div class="range-note">❄️ 请先选择第一个问题中的「男」或「女」</div>`;
+            selectedQ3 = null;
+            return;
+        }
+        const opts = optionsMap[selectedQ1];
+        if (!opts) return;
+        let html = '';
+        opts.forEach((opt) => {
+            const activeClass = (selectedQ3 === opt) ? 'active' : '';
+            html += `<div data-opt="${opt}" class="option-btn ${activeClass}" style="flex:0 0 auto;">${opt}</div>`;
+        });
+        dynamicContainer.innerHTML = html;
+        document.querySelectorAll('#dynamicOptionsContainer .option-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const val = btn.getAttribute('data-opt');
+                document.querySelectorAll('#dynamicOptionsContainer .option-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedQ3 = val;
+            });
+        });
+        if (selectedQ3 && !opts.includes(selectedQ3)) selectedQ3 = null;
+        else if (selectedQ3) {
+            document.querySelectorAll('#dynamicOptionsContainer .option-btn').forEach(btn => {
+                if (btn.getAttribute('data-opt') === selectedQ3) btn.classList.add('active');
+            });
+        }
+    }
+
+    // 问题1事件
+    function initQ1Events() {
+        const btns = document.querySelectorAll('#q1Options .option-btn');
+        btns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                btns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedQ1 = btn.getAttribute('data-val');
+                renderQ3Options();
+            });
+        });
+    }
+
+    // 区间选择事件
+    function initRangeEvents() {
+        const ranges = document.querySelectorAll('#rangeGroup .range-chip');
+        ranges.forEach(r => {
+            r.addEventListener('click', () => {
+                ranges.forEach(rr => rr.classList.remove('active'));
+                r.classList.add('active');
+                selectedRange = r.getAttribute('data-range');
+            });
+        });
+    }
+
+    // 确认按钮
+    function onMainConfirm() {
+        if (!selectedQ1) {
+            alert("请先完成「问题A」两个选项中选择一个");
+            return;
+        }
+        if (!selectedRange) {
+            alert("请完成「问题B」选择一个年龄区间");
+            return;
+        }
+        if (!selectedQ3) {
+            alert("请完成「问题C」根据当前方案选择一个选项");
+            return;
+        }
+        showFullscreenImageAndHideQuestion();
+    }
+
+    // 绑定关闭全屏按钮
+    const closeFsBtn = document.getElementById('closeFsHint');
+    closeFsBtn.addEventListener('click', closeFullscreen);
+    fullscreenOverlay.addEventListener('click', (e) => {
+        if (e.target === fullscreenOverlay) closeFullscreen();
+    });
+
+    // 绑定全屏按钮事件
+    fsAgreeBtn.addEventListener('click', handleFsAgree);
+    fsDisagreeBtn.addEventListener('click', handleFsDisagree);
+
+    // 初始化问卷事件
+    initQ1Events();
+    initRangeEvents();
+    confirmBtn.addEventListener('click', onMainConfirm);
+
+    renderQ3Options();
+</script>
+</body>
+</html>
